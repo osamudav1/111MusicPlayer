@@ -1,24 +1,25 @@
-FROM python:3.9-slim-buster
+FROM python:3.11-slim
 
 # Updating Packages
 RUN apt update && apt upgrade -y
-RUN apt install git curl python3-pip ffmpeg -y
+
+# Install dependencies
+RUN apt install -y git curl ffmpeg
 
 # Copying Requirements
 COPY requirements.txt /requirements.txt
 
 # Installing Requirements
-RUN cd /
 RUN pip3 install --upgrade pip
-RUN pip3 install -U -r requirements.txt
+RUN pip3 install -U -r /requirements.txt
 
 # Setting up working directory
-RUN mkdir /MusicPlayer
 WORKDIR /MusicPlayer
+RUN mkdir -p /MusicPlayer
 
-# Preparing for the Startup
+# Copy startup script
 COPY startup.sh /startup.sh
 RUN chmod +x /startup.sh
 
-# Running Music Player Bot
+# Run bot
 CMD ["/bin/bash", "/startup.sh"]
