@@ -1,25 +1,21 @@
 FROM python:3.11-slim
 
-# Updating Packages
+# System packages
 RUN apt update && apt upgrade -y
-
-# Install dependencies
 RUN apt install -y git curl ffmpeg
 
-# Copying Requirements
-COPY requirements.txt /requirements.txt
-
-# Installing Requirements
-RUN pip3 install --upgrade pip
-RUN pip3 install -U -r /requirements.txt
-
-# Setting up working directory
+# Workdir FIRST (important)
 WORKDIR /MusicPlayer
-RUN mkdir -p /MusicPlayer
 
-# Copy startup script
-COPY startup.sh /startup.sh
-RUN chmod +x /startup.sh
+# Copy project files
+COPY . /MusicPlayer
 
-# Run bot
-CMD ["/bin/bash", "/startup.sh"]
+# Install Python dependencies
+RUN pip3 install --upgrade pip
+RUN pip3 install -U -r requirements.txt
+
+# Make startup script executable (if exists)
+RUN if [ -f startup.sh ]; then chmod +x startup.sh; fi
+
+# Start bot safely (NO startup.sh dependency risk)
+CMD ["bash", "-c", "python3 main.py || python3 bot.py"]
